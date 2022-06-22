@@ -2,23 +2,22 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/samuelowad/admin_backend/database"
+	"github.com/samuelowad/admin_backend/routes"
 )
 
 func main() {
-	_, err := gorm.Open(mysql.Open("mysql:mysql@/go_admin"), &gorm.Config{})
 
-	if err != nil {
-		panic(err)
-	}
+	database.Connect()
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+	}))
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	routes.Setup(app)
 
-	err = app.Listen(":3000")
+	err := app.Listen(":3000")
 	if err != nil {
 		panic(err)
 	}
